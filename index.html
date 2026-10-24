@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel de Inscrições - SARAU 2026</title>
+
+<style>
+:root {
+  --rosa-fundo: #fbefee;
+  --rosa-claro: #fde9e7;
+  --rosa-borda: #f0bcb6;
+  --rosa-medio: #e08e86;
+  --rosa-forte: #b84a46;
+  --rosa-hover: #f2a29b;
+  --texto: #4a2d2b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--rosa-fundo);
+  color: var(--texto);
+  margin: 0;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -1;
+  background-color: var(--rosa-fundo);
+  background-image: url('https://raw.githubusercontent.com/NossoEventoRS/Imagens/refs/heads/main/Prenda%20Ga%C3%BAcha%20em%20Cen%C3%A1rio%20R%C3%BAstico.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.cabecalho {
+  width: 100%;
+  height: 270px;
+  background-image: url('https://raw.githubusercontent.com/NossoEventoRS/Imagens/refs/heads/main/banner%20sarau2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+main {
+  max-width: 1300px;
+  width: calc(100% - 24px);
+  margin: 20px auto;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 12px rgba(184, 74, 70, .2);
+}
+
+.section-title {
+  background: var(--rosa-forte);
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #dcb5b1;
+  font-family: inherit;
+  font-size: 14px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--rosa-medio);
+  border-color: var(--rosa-medio);
+}
+input[readonly] { background: var(--rosa-claro); }
+input:disabled, select:disabled, textarea:disabled { background: #f6efee; color: var(--texto); opacity: 1; }
+textarea { resize: vertical; min-height: 90px; }
+
+.btn {
+  padding: 11px 18px;
+  background: var(--rosa-forte);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn:hover { background: var(--rosa-hover); color: #3d1613; transition: .2s; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn.secundario { background: #fff; color: var(--rosa-forte); border: 2px solid var(--rosa-forte); }
+.btn.secundario:hover { background: var(--rosa-claro); }
+.btn.pequeno { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+
+/* Login */
+#telaLogin { max-width: 420px; margin: 0 auto; }
+#telaLogin label, .campo label { display: block; font-weight: bold; margin: 12px 0 4px; font-size: 14px; }
+#msgLogin { margin-top: 12px; color: #a32a24; font-size: 14px; min-height: 18px; }
+
+/* Painel */
+#telaPainel { display: none; }
+.barra { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.barra .busca { flex: 1 1 240px; }
+.barra .filtro { flex: 0 1 220px; }
+.espaco { flex: 1; }
+.resumo { font-size: 14px; margin-bottom: 10px; }
+.usuario-logado { font-size: 13px; color: #7a5350; }
+
+.tabela-wrap { overflow-x: auto; border: 2px solid var(--rosa-borda); border-radius: 12px; background: #fff; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid var(--rosa-borda); padding: 8px; font-size: 13px; text-align: left; white-space: nowrap; }
+th { background: var(--rosa-claro); position: sticky; top: 0; }
+tr:hover td { background: #fff6f5; }
+td.acoes { display: flex; gap: 6px; }
+
+/* Modal */
+.modal-fundo {
+  position: fixed; inset: 0;
+  background: rgba(60, 20, 18, .55);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 16px;
+  z-index: 9000;
+}
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 760px;
+  padding: 20px;
+  margin: 20px auto;
+}
+.grade { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.grade .inteiro { grid-column: 1 / -1; }
+.contador-chars { font-size: 12px; color: #8a6360; text-align: right; }
+.info-fixa { font-size: 13px; background: var(--rosa-claro); border-radius: 8px; padding: 10px; margin-bottom: 8px; line-height: 1.6; }
+.modal .rodape { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+#msgModal { font-size: 14px; min-height: 18px; margin-top: 10px; }
+.erro { color: #a32a24; }
+.ok { color: #2e7d32; }
+
+footer { text-align: center; margin: 20px auto; font-size: 12px; color: #ffffff; padding: 10px; }
+
+@media (max-width: 700px) {
+  main { padding: 14px; width: calc(100% - 16px); margin: 12px auto; }
+  .grade { grid-template-columns: 1fr; }
+  .cabecalho { height: 110px; }
+}
+</style>
+</head>
+<body>
+
+<header><div class="cabecalho" role="img" aria-label="1º Sarau de Chinocas Gaúcho"></div></header>
+
+<main>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="telaLogin">
+  <div class="section-title">Acesso restrito</div>
+  <label for="usuario">Usuário</label>
+  <input id="usuario" autocomplete="username">
+  <label for="senha">Senha</label>
+  <input id="senha" type="password" autocomplete="current-password">
+  <div id="msgLogin"></div>
+  <p><button class="btn" id="btnEntrar" style="width:100%;">ENTRAR</button></p>
+</div>
+
+<!-- ===================== PAINEL ===================== -->
+<div id="telaPainel">
+  <div class="section-title">Inscrições recebidas | PAINEL administrativo</div>
+
+  <div class="barra">
+    <input class="busca" id="busca" placeholder="Buscar por nome, CPF, matrícula, e-mail...">
+    <select class="filtro" id="filtroEntidade"><option value="">Todas as entidades</option></select>
+    <button class="btn secundario" id="btnAtualizar">↻ Atualizar</button>
+    <button class="btn" id="btnPdf">⬇ Gerar PDF</button>
+  </div>
+  <div class="barra">
+    <span class="resumo" id="resumo"></span>
+    <span class="espaco"></span>
+    <span class="usuario-logado" id="usuarioLogado"></span>
+    <button class="btn secundario pequeno" id="btnSair">Sair</button>
+  </div>
+
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Matrícula</th><th>Nome</th><th>CPF</th><th>Entidade</th><th>RT</th>
+          <th>Telefone</th><th>E-mail</th><th>Inscrição</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoTabela"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<!-- ===================== MODAL DE EDIÇÃO ===================== -->
+<div class="modal-fundo" id="modalFundo">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="section-title" id="tituloModal">Editar inscrição</div>
+
+    <div class="info-fixa" id="infoFixa"></div>
+
+    <div class="grade">
+      <div class="campo inteiro"><label for="e_nome">Nome</label><input id="e_nome"></div>
+      <div class="campo"><label for="e_cpf">CPF</label><input id="e_cpf" inputmode="numeric" maxlength="14"></div>
+      <div class="campo"><label for="e_nascimento">Data de nascimento</label><input id="e_nascimento" type="date"></div>
+      <div class="campo"><label for="e_telefone">Telefone</label><input id="e_telefone" type="tel" maxlength="15"></div>
+      <div class="campo"><label for="e_email">E-mail</label><input id="e_email" type="email"></div>
+      <div class="campo inteiro"><label for="e_entidade">Entidade</label><input id="e_entidade"></div>
+      <div class="campo"><label for="e_rt">RT</label><select id="e_rt"></select></div>
+      <div class="campo"><label for="e_patrao">Patrão</label><input id="e_patrao"></div>
+      <div class="campo inteiro"><label for="e_padrinho">Nome do Padrinho</label><input id="e_padrinho"></div>
+      <div class="campo inteiro">
+        <label for="e_relato">Breve relato tradicionalista</label>
+        <textarea id="e_relato" maxlength="1000"></textarea>
+        <div class="contador-chars"><span id="cntRelato">0</span>/1000</div>
+      </div>
+      <div class="campo inteiro">
+        <label for="e_frase">Frase marcante</label>
+        <textarea id="e_frase" maxlength="300" style="min-height:60px;"></textarea>
+        <div class="contador-chars"><span id="cntFrase">0</span>/300</div>
+      </div>
+    </div>
+
+    <div id="msgModal"></div>
+    <div class="rodape">
+      <button class="btn secundario" id="btnCancelar">Cancelar</button>
+      <button class="btn" id="btnSalvar">SALVAR ALTERAÇÕES</button>
+    </div>
+  </div>
+</div>
+
+<footer>Painel administrativo - NossoEventoRS © 2026</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// ===== CONFIGURAÇÃO =====
+const URL_GS = "https://script.google.com/macros/s/AKfycbzcUtnNITyzmR5F58zWThpRfGoPbLqEIKP7MD-MqI1BnUfoJ6y04fGaEfMby5jPObBY/exec";   // mesma URL do Web App usada em index.html
+const NOME_EVENTO = "1º Sarau de Chinocas | CTG CHAMA NATIVA 12ª RT";
+// ========================
+
+let token = null;
+let usuarioAtual = "";
+let inscricoes = [];
+let editando = null; // matrícula em edição
+let podeEditar = false;
+
+const $ = id => document.getElementById(id);
+
+/* ---------- Comunicação com o Google Script ---------- */
+async function api(acao, extra) {
+    if (!URL_GS) throw new Error("URL do Google Script não configurada.");
+    const resp = await fetch(URL_GS, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita pré-requisição CORS
+        body: JSON.stringify(Object.assign({ acao: acao, token: token }, extra || {}))
+    });
+    const dados = await resp.json();
+    if (dados.sessaoExpirada) { encerrarSessao(false); throw new Error(dados.mensagem); }
+    return dados;
+}
+
+/* ---------- Formatação ---------- */
+const fmtCpf = c => c.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+const fmtData = iso => iso && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso.split("-").reverse().join("/") : (iso || "");
+
+function mascaraCpf(e) {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    e.target.value = v;
+}
+function mascaraTel(e) {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    if (v.length > 10)     v = v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+    else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+    else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+    else if (v.length > 0) v = v.replace(/(\d{0,2})/, "($1");
+    e.target.value = v;
+}
+$("e_cpf").addEventListener("input", mascaraCpf);
+$("e_telefone").addEventListener("input", mascaraTel);
+
+/* ---------- Login / sessão ---------- */
+async function entrar() {
+    $("msgLogin").textContent = "";
+    const u = $("usuario").value.trim(), s = $("senha").value;
+    if (!u || !s) { $("msgLogin").textContent = "Informe usuário e senha."; return; }
+
+    $("btnEntrar").disabled = true;
+    $("btnEntrar").textContent = "Verificando...";
+    try {
+        const r = await api("login", { usuario: u, senha: s });
+        if (!r.ok) { $("msgLogin").textContent = r.mensagem; return; }
+        token = r.token;
+        usuarioAtual = r.usuario;
+        podeEditar = !!r.podeEditar;
+        try { sessionStorage.setItem("sarau_token", token); sessionStorage.setItem("sarau_usuario", usuarioAtual); sessionStorage.setItem("sarau_edita", podeEditar ? "1" : "0"); } catch (e) {}
+        $("senha").value = "";
+        abrirPainel();
+    } catch (err) {
+        $("msgLogin").textContent = "Não foi possível conectar: " + err.message;
+    } finally {
+        $("btnEntrar").disabled = false;
+        $("btnEntrar").textContent = "ENTRAR";
+    }
+}
+
+function abrirPainel() {
+    $("telaLogin").style.display = "none";
+    $("telaPainel").style.display = "block";
+    $("usuarioLogado").textContent = "Responsável: " + usuarioAtual + (podeEditar ? "" : " (somente consulta)");
+    carregar();
+}
+
+function encerrarSessao(avisarServidor) {
+    if (avisarServidor && token) { api("sair").catch(() => {}); }
+    token = null;
+    podeEditar = false;
+    inscricoes = [];
+    try { sessionStorage.removeItem("sarau_token"); sessionStorage.removeItem("sarau_usuario"); sessionStorage.removeItem("sarau_edita"); } catch (e) {}
+    fecharModal();
+    $("telaPainel").style.display = "none";
+    $("telaLogin").style.display = "block";
+    $("corpoTabela").replaceChildren();
+}
+
+/* ---------- Carregar e exibir ---------- */
+async function carregar() {
+    $("resumo").textContent = "Carregando...";
+    try {
+        const r = await api("listar");
+        if (!r.ok) { $("resumo").textContent = r.mensagem; return; }
+        inscricoes = r.inscricoes;
+        preencherFiltro();
+        renderizar();
+    } catch (err) {
+        $("resumo").textContent = "Erro ao carregar: " + err.message;
+    }
+}
+
+function preencherFiltro() {
+    const atual = $("filtroEntidade").value;
+    const entidades = [...new Set(inscricoes.map(i => i.entidade))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    const sel = $("filtroEntidade");
+    sel.replaceChildren(new Option("Todas as entidades", ""));
+    entidades.forEach(e => sel.appendChild(new Option(e, e)));
+    sel.value = entidades.includes(atual) ? atual : "";
+}
+
+function listaFiltrada() {
+    const termo = $("busca").value.trim().toLowerCase();
+    const termoNum = termo.replace(/\D/g, "");
+    const ent = $("filtroEntidade").value;
+    return inscricoes.filter(i => {
+        if (ent && i.entidade !== ent) return false;
+        if (!termo) return true;
+        const texto = [i.matricula, i.nome, i.entidade, i.email, i.patrao, i.padrinho, i.rt].join(" ").toLowerCase();
+        return texto.includes(termo) || (termoNum.length >= 3 && i.cpf.includes(termoNum));
+    });
+}
+
+function celula(tr, texto) {
+    const td = document.createElement("td");
+    td.textContent = texto;   // textContent: dados dos participantes nunca são interpretados como HTML
+    tr.appendChild(td);
+    return td;
+}
+
+function renderizar() {
+    const lista = listaFiltrada();
+    const corpo = $("corpoTabela");
+    corpo.replaceChildren();
+
+    lista.forEach(i => {
+        const tr = document.createElement("tr");
+        celula(tr, i.matricula);
+        celula(tr, i.nome);
+        celula(tr, fmtCpf(i.cpf));
+        celula(tr, i.entidade);
+        celula(tr, i.rt);
+        celula(tr, i.telefone);
+        celula(tr, i.email);
+        celula(tr, i.dataHora);
+
+        const acoes = document.createElement("td");
+        acoes.className = "acoes";
+        const bEdit = document.createElement("button");
+        bEdit.className = "btn pequeno";
+        bEdit.textContent = podeEditar ? "Editar" : "Ver";
+        bEdit.onclick = () => abrirModal(i.matricula);
+        acoes.appendChild(bEdit);
+
+        if (/^https:\/\/(drive|docs)\.google\.com\//.test(i.foto)) {
+            const a = document.createElement("a");
+            a.className = "btn secundario pequeno";
+            a.textContent = "Foto";
+            a.href = i.foto;
+            a.target = "_blank";
+            a.rel = "noopener";
+            acoes.appendChild(a);
+        }
+        tr.appendChild(acoes);
+        corpo.appendChild(tr);
+    });
+
+    $("resumo").textContent = lista.length === inscricoes.length
+        ? `${inscricoes.length} inscrição(ões)`
+        : `${lista.length} de ${inscricoes.length} inscrição(ões)`;
+}
+
+$("busca").addEventListener("input", renderizar);
+$("filtroEntidade").addEventListener("change", renderizar);
+$("btnAtualizar").addEventListener("click", carregar);
+$("btnSair").addEventListener("click", () => encerrarSessao(true));
+$("btnEntrar").addEventListener("click", entrar);
+["usuario", "senha"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") entrar(); }));
+
+/* ---------- Edição ---------- */
+(function montarRt() {
+    const sel = $("e_rt");
+    for (let n = 1; n <= 30; n++) sel.appendChild(new Option(n + "ª RT", n + "ª RT"));
+})();
+
+[["e_relato", "cntRelato"], ["e_frase", "cntFrase"]].forEach(([campo, cnt]) => {
+    $(campo).addEventListener("input", () => $(cnt).textContent = $(campo).value.length);
+});
+
+function abrirModal(matricula) {
+    const i = inscricoes.find(x => x.matricula === matricula);
+    if (!i) return;
+    editando = matricula;
+
+    $("infoFixa").textContent = `Matrícula: ${i.matricula}  |  Inscrito em: ${i.dataHora}  |  Regulamento aceito: ${i.aceite || "-"}  |  E-mail de confirmação: ${i.emailEnviado || "-"}`;
+    $("e_nome").value = i.nome;
+    $("e_cpf").value = fmtCpf(i.cpf);
+    $("e_nascimento").value = i.nascimento;
+    $("e_telefone").value = i.telefone;
+    $("e_email").value = i.email;
+    $("e_entidade").value = i.entidade;
+    $("e_patrao").value = i.patrao;
+    $("e_padrinho").value = i.padrinho;
+    $("e_relato").value = i.relato;
+    $("e_frase").value = i.frase;
+    $("cntRelato").textContent = i.relato.length;
+    $("cntFrase").textContent = i.frase.length;
+
+    const selRt = $("e_rt");
+    if (![...selRt.options].some(o => o.value === i.rt)) selRt.appendChild(new Option(i.rt, i.rt));
+    selRt.value = i.rt;
+
+    document.querySelectorAll("#modalFundo input, #modalFundo select, #modalFundo textarea").forEach(el => el.disabled = !podeEditar);
+    $("btnSalvar").style.display = podeEditar ? "" : "none";
+    $("tituloModal").textContent = podeEditar ? "Editar inscrição" : "Consultar inscrição";
+    $("btnCancelar").textContent = podeEditar ? "Cancelar" : "Fechar";
+    $("msgModal").textContent = "";
+    $("msgModal").className = "";
+    $("modalFundo").style.display = "flex";
+}
+
+function fecharModal() {
+    $("modalFundo").style.display = "none";
+    editando = null;
+}
+$("btnCancelar").addEventListener("click", fecharModal);
+
+async function salvarEdicao() {
+    if (!editando || !podeEditar) return;
+    const campos = {
+        nome: $("e_nome").value, cpf: $("e_cpf").value, nascimento: $("e_nascimento").value,
+        telefone: $("e_telefone").value, email: $("e_email").value, entidade: $("e_entidade").value,
+        rt: $("e_rt").value, patrao: $("e_patrao").value, padrinho: $("e_padrinho").value,
+        relato: $("e_relato").value, frase: $("e_frase").value
+    };
+    if (Object.values(campos).some(v => !String(v).trim())) {
+        $("msgModal").className = "erro";
+        $("msgModal").textContent = "Todos os campos são obrigatórios.";
+        return;
+    }
+
+    $("btnSalvar").disabled = true;
+    $("btnSalvar").textContent = "Salvando...";
+    try {
+        const r = await api("editar", { matricula: editando, campos: campos });
+        if (!r.ok) {
+            $("msgModal").className = "erro";
+            $("msgModal").textContent = r.mensagem;
+            return;
+        }
+        fecharModal();
+        await carregar();
+    } catch (err) {
+        $("msgModal").className = "erro";
+        $("msgModal").textContent = "Erro ao salvar: " + err.message;
+    } finally {
+        $("btnSalvar").disabled = false;
+        $("btnSalvar").textContent = "SALVAR ALTERAÇÕES";
+    }
+}
+$("btnSalvar").addEventListener("click", salvarEdicao);
+
+/* ---------- PDF ---------- */
+function gerarPdf() {
+    const lista = listaFiltrada();
+    if (!lista.length) { alert("Não há inscrições para gerar a lista."); return; }
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Não foi possível carregar o gerador de PDF. Verifique a internet e tente novamente.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const ent = $("filtroEntidade").value;
+    const agora = new Date().toLocaleString("pt-BR");
+
+    doc.setFontSize(15);
+    doc.text(NOME_EVENTO + " - Lista de inscrições", 14, 14);
+    doc.setFontSize(9);
+    doc.text(`Gerado em ${agora}  |  Total: ${lista.length}` + (ent ? `  |  Entidade: ${ent}` : ""), 14, 20);
+
+    const ordenada = lista.slice().sort((a, b) => a.matricula.localeCompare(b.matricula));
+    doc.autoTable({
+        startY: 24,
+        head: [["Matrícula", "Nome", "CPF", "Entidade", "RT", "Patrão", "Telefone", "E-mail"]],
+        body: ordenada.map(i => [i.matricula, i.nome, fmtCpf(i.cpf), i.entidade, i.rt, i.patrao, i.telefone, i.email]),
+        styles: { fontSize: 8, cellPadding: 1.8 },
+        headStyles: { fillColor: [184, 74, 70] },
+        alternateRowStyles: { fillColor: [253, 233, 231] },
+        margin: { left: 14, right: 14 },
+        didDrawPage: () => {
+            const pag = doc.internal.getNumberOfPages();
+            doc.setFontSize(8);
+            doc.text("Página " + pag, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: "right" });
+        }
+    });
+
+    doc.save("inscricoes-sarau-" + new Date().toISOString().slice(0, 10) + ".pdf");
+}
+$("btnPdf").addEventListener("click", gerarPdf);
+
+/* ---------- Retomar sessão ao recarregar a página ---------- */
+(function retomar() {
+    try {
+        const t = sessionStorage.getItem("sarau_token");
+        if (t) {
+            token = t;
+            usuarioAtual = sessionStorage.getItem("sarau_usuario") || "";
+            podeEditar = sessionStorage.getItem("sarau_edita") === "1";
+            abrirPainel();
+        }
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>
